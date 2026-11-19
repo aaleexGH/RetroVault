@@ -28,21 +28,52 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        panelFiltros = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        cmbConsola = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        cmbEstado = new javax.swing.JComboBox<>();
+        btnFiltrar = new javax.swing.JButton();
+        btnLimpiar = new javax.swing.JButton();
+        btnAnyadir = new javax.swing.JButton();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("RetroVault — Biblioteca de Videojuegos Retro");
+        setMinimumSize(new java.awt.Dimension(900, 600));
+
+        panelFiltros.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        panelFiltros.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        jLabel1.setText("Consola:");
+        panelFiltros.add(jLabel1);
+
+        cmbConsola.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todas", "NES", "SNES", "Mega Drive", "Game Boy", "PlayStation", "Nintendo 64", "Game Gear", "Arcade" }));
+        cmbConsola.addActionListener(this::cmbConsolaActionPerformed);
+        panelFiltros.add(cmbConsola);
+
+        jLabel2.setText("Estado:");
+        panelFiltros.add(jLabel2);
+
+        cmbEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Pendiente", "Jugando", "Completado", "Abandonado" }));
+        panelFiltros.add(cmbEstado);
+
+        btnFiltrar.setText("Filtrar");
+        panelFiltros.add(btnFiltrar);
+
+        btnLimpiar.setText("Limpiar");
+        panelFiltros.add(btnLimpiar);
+
+        btnAnyadir.setText("+ Añadir");
+        panelFiltros.add(btnAnyadir);
+
+        getContentPane().add(panelFiltros, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cmbConsolaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbConsolaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbConsolaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -70,5 +101,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAnyadir;
+    private javax.swing.JButton btnFiltrar;
+    private javax.swing.JButton btnLimpiar;
+    private javax.swing.JComboBox<String> cmbConsola;
+    private javax.swing.JComboBox<String> cmbEstado;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel panelFiltros;
     // End of variables declaration//GEN-END:variables
 }
