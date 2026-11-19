@@ -49,8 +49,7 @@ return lista;
 }
 // ── INSERTAR ──────────────────────────────────────────────
 public void insertar(Juego j) {
-String sql = "INSERT INTO juegos(titulo,consola,genero,anio,puntuacion,estado)
-VALUES(?,?,?,?,?,?)";
+String sql = "INSERT INTO juegos(titulo,consola,genero,anio,puntuacion,estado)VALUES(?,?,?,?,?,?)";
 // RETURN_GENERATED_KEYS: recuperar el id asignado por AUTOINCREMENT
 try (Connection c = DatabaseManager.getConnection();
 
@@ -69,8 +68,7 @@ if (rs.next()) j.setId(rs.getInt(1)); // guardamos el id en el objeto
 }
 // ── ACTUALIZAR ────────────────────────────────────────────
 public void actualizar(Juego j) {
-String sql = "UPDATE juegos SET titulo=?,consola=?,genero=?,anio=?,puntuacion=?,estado=?
-WHERE id=?";
+String sql = "UPDATE juegos SET titulo=?,consola=?,genero=?,anio=?,puntuacion=?,estado=? WHERE id=?";
 try (Connection c = DatabaseManager.getConnection();
 PreparedStatement ps = c.prepareStatement(sql)) {
 ps.setString(1, j.getTitulo());

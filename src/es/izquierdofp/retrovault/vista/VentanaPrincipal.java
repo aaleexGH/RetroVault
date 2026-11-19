@@ -4,19 +4,27 @@
  */
 package es.izquierdofp.retrovault.vista;
 
+import es.izquierdofp.retrovault.datos.JuegoDAO;
+import es.izquierdofp.retrovault.modelo.Juego;
+
 /**
  *
  * @author 2DAM
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaPrincipal.class.getName());
 
-    /**
-     * Creates new form VentanaPrincipal
-     */
+    private final JuegoDAO dao = new JuegoDAO();
+    private JuegosTableModel modeloTabla;
+
     public VentanaPrincipal() {
-        initComponents();
+        initComponents();            // generado por NetBeans — no borrar
+        configurarTabla();           // conecta el modelo y el renderer
+        configurarPopup();           // asocia el popup a la tabla
+        configurarEventos();         // conecta botones, menús y popup
+        cargarDatos();               // carga los juegos de la BD
+        setLocationRelativeTo(null); // centra la ventana en pantalla
     }
 
     /**
@@ -35,14 +43,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         popEliminar = new javax.swing.JMenuItem();
         panelFiltros = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cmbConsola = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         cmbEstado = new javax.swing.JComboBox<>();
         btnFiltrar = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
         btnAnyadir = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tablaJuegos = new javax.swing.JTable();
         panelEstadisticas = new javax.swing.JPanel();
         lblTotal = new javax.swing.JLabel();
         lblCompletados = new javax.swing.JLabel();
@@ -79,8 +87,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel1.setText("Consola:");
         panelFiltros.add(jLabel1);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todas", "NES", "SNES", "Mega Drive", "Game Boy", "PlayStation", "Nintendo 64", "Game Gear", "Arcade" }));
-        panelFiltros.add(jComboBox1);
+        cmbConsola.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todas", "NES", "SNES", "Mega Drive", "Game Boy", "PlayStation", "Nintendo 64", "Game Gear", "Arcade" }));
+        panelFiltros.add(cmbConsola);
 
         jLabel2.setText("Estado:");
         panelFiltros.add(jLabel2);
@@ -95,11 +103,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         panelFiltros.add(btnLimpiar);
 
         btnAnyadir.setText("+ Añadir");
+        btnAnyadir.addActionListener(this::btnAnyadirActionPerformed);
         panelFiltros.add(btnAnyadir);
 
         getContentPane().add(panelFiltros, java.awt.BorderLayout.PAGE_START);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaJuegos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -110,45 +119,29 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        tablaJuegos.setGridColor(new java.awt.Color(60, 60, 60));
+        tablaJuegos.setRowHeight(26);
+        tablaJuegos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(tablaJuegos);
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
+        panelEstadisticas.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
         lblTotal.setText("Total: 0");
+        panelEstadisticas.add(lblTotal);
 
         lblCompletados.setText("| Completados: 0");
+        panelEstadisticas.add(lblCompletados);
 
         lblMedia.setText("| Puntuación media: –");
-
-        javax.swing.GroupLayout panelEstadisticasLayout = new javax.swing.GroupLayout(panelEstadisticas);
-        panelEstadisticas.setLayout(panelEstadisticasLayout);
-        panelEstadisticasLayout.setHorizontalGroup(
-            panelEstadisticasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelEstadisticasLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblTotal)
-                .addGap(18, 18, 18)
-                .addComponent(lblCompletados)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblMedia)
-                .addContainerGap(411, Short.MAX_VALUE))
-        );
-        panelEstadisticasLayout.setVerticalGroup(
-            panelEstadisticasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelEstadisticasLayout.createSequentialGroup()
-                .addContainerGap(78, Short.MAX_VALUE)
-                .addGroup(panelEstadisticasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblTotal)
-                    .addComponent(lblCompletados)
-                    .addComponent(lblMedia))
-                .addContainerGap())
-        );
+        panelEstadisticas.add(lblMedia);
 
         getContentPane().add(panelEstadisticas, java.awt.BorderLayout.PAGE_END);
 
         jMenu1.setText("Archivo");
 
-        mniSalir.setText("salir");
+        mniSalir.setText("Salir");
         jMenu1.add(mniSalir);
 
         jMenuBar.add(jMenu1);
@@ -183,15 +176,148 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAnyadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnyadirActionPerformed
+        DialogoJuego dlg = new DialogoJuego(this, null); // null = nuevo
+        dlg.setVisible(true);
+        if (dlg.isGuardado()) {
+            dao.insertar(dlg.getJuego());
+            cargarDatos();
+        }
+    }//GEN-LAST:event_btnAnyadirActionPerformed
+
+    private void configurarEventos() {
+        mniAnyadir.addActionListener(this::btnAnyadirActionPerformed);
+        popAnyadir.addActionListener(this::btnAnyadirActionPerformed);
+
+        mniEditar.addActionListener(e -> editarSeleccionado());
+        popEditar.addActionListener(e -> editarSeleccionado());
+
+        mniEliminar.addActionListener(e -> eliminarSeleccionado());
+        popEliminar.addActionListener(e -> eliminarSeleccionado());
+
+        btnFiltrar.addActionListener(e -> filtrar());
+        btnLimpiar.addActionListener(e -> {
+            cmbConsola.setSelectedIndex(0);
+            cmbEstado.setSelectedIndex(0);
+            cargarDatos();
+        });
+
+        mniActualizar.addActionListener(e -> cargarDatos());
+        mniSalir.addActionListener(e -> System.exit(0));
+    }
+
+    private void configurarTabla() {
+        // Asignamos nuestro modelo personalizado a la tabla
+        modeloTabla = new JuegosTableModel(new java.util.ArrayList<>());
+        tablaJuegos.setModel(modeloTabla);
+
+        // Aplicamos el renderer de colores a TODAS las columnas
+        ConsolaColorRenderer renderer = new ConsolaColorRenderer();
+        for (int i = 0; i < tablaJuegos.getColumnCount(); i++) {
+            tablaJuegos.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        // Anchuras preferidas de cada columna
+        tablaJuegos.getColumnModel().getColumn(0).setPreferredWidth(35);
+        tablaJuegos.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tablaJuegos.getColumnModel().getColumn(2).setPreferredWidth(110);
+        tablaJuegos.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tablaJuegos.getColumnModel().getColumn(4).setPreferredWidth(50);
+        tablaJuegos.getColumnModel().getColumn(5).setPreferredWidth(110);
+        tablaJuegos.getColumnModel().getColumn(6).setPreferredWidth(100);
+
+        // Doble clic en una fila abre el diálogo de edición
+        tablaJuegos.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    editarSeleccionado();
+                }
+            }
+        });
+    }
+
+    private void configurarPopup() {
+        // Asociar el popup al JTable
+        tablaJuegos.setComponentPopupMenu(popupTabla);
+
+        // Al hacer clic derecho, seleccionar la fila bajo el cursor
+        tablaJuegos.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int fila = tablaJuegos.rowAtPoint(e.getPoint());
+                if (fila >= 0) {
+                    tablaJuegos.setRowSelectionInterval(fila, fila);
+                }
+            }
+        });
+    }
+
+    // Recarga todos los juegos de la BD y actualiza estadísticas
+    private void cargarDatos() {
+        modeloTabla.setJuegos(dao.obtenerTodos());
+        actualizarEstadisticas();
+    }
+
+    private void actualizarEstadisticas() {
+        int total = dao.contarTotal();
+        int comp = dao.contarCompletados();
+        double med = dao.puntuacionMedia();
+        lblTotal.setText(" Total: " + total);
+        lblCompletados.setText(" | Completados: " + comp);
+        lblMedia.setText(" | Media: " + (total == 0 ? "–" : String.format("%.1f ★", med)));
+    }
+
+    private void filtrar() {
+        String cons = (String) cmbConsola.getSelectedItem();
+        String est = (String) cmbEstado.getSelectedItem();
+        java.util.List<Juego> lista;
+        if (!"Todas".equals(cons)) {
+            lista = dao.obtenerPorConsola(cons);
+        } else if (!"Todos".equals(est)) {
+            lista = dao.obtenerPorEstado(est);
+        } else {
+            lista = dao.obtenerTodos();
+        }
+        modeloTabla.setJuegos(lista);
+    }
+
+    private void editarSeleccionado() {
+        int fila = tablaJuegos.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        Juego j = modeloTabla.getJuego(fila);
+        DialogoJuego dlg = new DialogoJuego(this, j);
+        dlg.setVisible(true);
+        if (dlg.isGuardado()) {
+            dao.actualizar(dlg.getJuego());
+            cargarDatos();
+        }
+    }
+
+    private void eliminarSeleccionado() {
+        int fila = tablaJuegos.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        Juego j = modeloTabla.getJuego(fila);
+        int r = javax.swing.JOptionPane.showConfirmDialog(this,
+                "¿Eliminar \"" + j.getTitulo() + "\" de tu biblioteca?",
+                "Confirmar eliminación", javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+        if (r == javax.swing.JOptionPane.YES_OPTION) {
+            dao.eliminar(j.getId());
+            cargarDatos();
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -212,8 +338,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnAnyadir;
     private javax.swing.JButton btnFiltrar;
     private javax.swing.JButton btnLimpiar;
+    private javax.swing.JComboBox<String> cmbConsola;
     private javax.swing.JComboBox<String> cmbEstado;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
@@ -221,7 +347,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblCompletados;
     private javax.swing.JLabel lblMedia;
     private javax.swing.JLabel lblTotal;
@@ -238,5 +363,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem popEditar;
     private javax.swing.JMenuItem popEliminar;
     private javax.swing.JPopupMenu popupTabla;
+    private javax.swing.JTable tablaJuegos;
     // End of variables declaration//GEN-END:variables
 }
